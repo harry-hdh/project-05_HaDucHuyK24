@@ -15,5 +15,6 @@ def get_mongo_client():
     except Exception as e:
         print(f"Error connecting to MongoDB: {e}")
         return
+    return source_col
 
 # get_mongo_client()
