@@ -1,6 +1,7 @@
 from collect_product_info import extract_product_data
 from scrape_product_name import scrape_main
 from process_ip_loc import process_ip_loc
+from config import get_mongo_client
 
 #
 IP2LOCATION_DB_PATH = "/home/hdh99/p5_data/IP-COUNTRY-REGION-CITY.BIN"
