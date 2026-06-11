@@ -1,2 +1,6 @@
 
 outcome_data/ip_locations.csv
+outcome_data/product_info_referrer_url.csv
+.gitignore
+outcome_data/product_info.csv
+outcome_data/product_info_with_titles.csv

@@ -1,22 +1,22 @@
 from config import get_mongo_client
-import csv
-import os
+from utils import save_to_csv
+
 import IP2Location
 
 #.BIN database file path
-IP2LOCATION_DB_PATH = "/home/hdh99/p5_data/IP-COUNTRY-REGION-CITY.BIN"
-CSV_FILE_PATH = "/home/hdh99/project-05_HaDucHuyK24/outcome_data/ip_locations.csv"
+# IP2LOCATION_DB_PATH = "/home/hdh99/p5_data/IP-COUNTRY-REGION-CITY.BIN"
+# CSV_FILE_PATH = "/home/hdh99/project-05_HaDucHuyK24/outcome_data/ip_locations.csv"
 
-def process_ip_loc():
+def process_ip_loc(bin_path, output_csv_path):
     # Verify that the IP2Location database file exists
     source_col = get_mongo_client()
 
-    if not os.path.exists(IP2LOCATION_DB_PATH):
-        print(f"Error: IP2Location database not found at {IP2LOCATION_DB_PATH}")
+    if not os.path.exists(bin_path):
+        print(f"Error: IP2Location database not found at {bin_path}")
         return
-    print(f"Using IP2Location database at: {IP2LOCATION_DB_PATH}")
+    print(f"Using IP2Location database at: {bin_path}")
     # Initialize IP2Location
-    ip_db = IP2Location.IP2Location(IP2LOCATION_DB_PATH)
+    ip_db = IP2Location.IP2Location(bin_path)
     
     # 2. Read unique IPs from main collection using aggregation
     pipeline = [
@@ -55,16 +55,9 @@ def process_ip_loc():
         return
     
     # 4. Write results to CSV
-    # Remove existing file if it exists
-    if os.path.exists(CSV_FILE_PATH):
-        os.remove(CSV_FILE_PATH)
-        print(f"Existing file in {CSV_FILE_PATH} removed.")
 
     keys = results[0].keys()
-    with open(CSV_FILE_PATH, 'w', newline='', encoding='utf-8') as output_file:
-        dict_writer = csv.DictWriter(output_file, fieldnames=keys)
-        dict_writer.writeheader()
-        dict_writer.writerows(results)
-    print(f"Successfully saved {len(results)} records to {CSV_FILE_PATH}")
+    
+    save_to_csv(results, keys, output_csv_path)
 
 #process_ip_loc()
