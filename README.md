@@ -44,3 +44,24 @@ security:
   authorization: "enabled"`
 
 `sudo systemctl restart mongod`
+
+### Connect to GCP VM gcpcloud
+
+- Install:
+`sudo snap install google-cloud-sdk --classic`
+
+- ssh:
+`gcloud compute ssh <UNAME>@<VM-NAME> --zone=us-central1-a`
+
+### Install Git on VM
+
+`
+sudo apt-get update
+sudo apt-get install git-all
+`
+
+### Install poetry on VM
+
+`pipx install poetry`
+
+*Needs pipx

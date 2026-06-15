@@ -1,12 +1,9 @@
-from config import get_mongo_client
-from utils import save_to_csv
+from con import get_mongo_client
+from utils import save_batch_csv, chunked
 
 
-# CSV_FILE_PATH1 = "/home/hdh99/project-05_HaDucHuyK24/outcome_data/product_info.csv"
-# CSV_FILE_PATH2 = "/home/hdh99/project-05_HaDucHuyK24/outcome_data/product_info_referrer_url.csv"
 
-
-def extract_product_data(collection, target_events, fields_to_extract, output_csv_path, id_fallbacks=None):
+def extract_product_data(collection, target_events, fields_to_extract, folder_name, file_name, id_fallbacks=None):
 
     # 1. Base Match Stage (Filters event types)
     pipeline = [
@@ -33,6 +30,26 @@ def extract_product_data(collection, target_events, fields_to_extract, output_cs
         main_id = list(id_fallbacks.keys())[0]
         pipeline.append({"$match": {main_id: {"$ne": None}}})
 
+        # 4. Group by product_id to keep only unique entries
+        group_stage = {
+            "_id": f"${main_id}",  # Group keys by the generated product_id
+            "event_type": {"$first": "$event_type"}  # Keep the first event type seen
+        }
+        for field in fields_to_extract:
+            group_stage[field] = {"$first": f"${field}"}
+        pipeline.append({"$group": group_stage})
+
+        # 5. Clean up the grouped fields so the formatting stays pristine
+        final_project_stage = {
+            "_id": 0,
+            main_id: "$_id",  # Turn '_id' back into your named property (e.g., 'product_id')
+            "event_type": 1
+        }
+        for field in fields_to_extract:
+            final_project_stage[field] = 1
+            
+        pipeline.append({"$project": final_project_stage})
+
     #Running aggregation query on MongoDB
     cursor = collection.aggregate(pipeline)
     # Convert cursor to a list of dicts to write to CSV
@@ -40,8 +57,10 @@ def extract_product_data(collection, target_events, fields_to_extract, output_cs
 
     # Save data to csv 
     if extracted_records:
-        fieldnames = list(extracted_records[0].keys())  
-        save_to_csv(extracted_records, fieldnames, output_csv_path)
+        fieldnames = list(extracted_records[0].keys())
+
+        for i, batch in enumerate(chunked(extracted_records, 1000), 1):  
+            save_batch_csv(batch, fieldnames, file_name, i, folder_name)
     else:
         print("No matching event data found based on your criteria.")
 
@@ -56,6 +75,6 @@ def extract_product_data(collection, target_events, fields_to_extract, output_cs
 # ]
 # product_id_fallback = {"product_id": ["$product_id", "$viewing_product_id"]}
 
-#extract_product_data(collection=get_mongo_client(), target_events=collections, fields_to_extract=["current_url"], id_fallbacks=product_id_fallback, output_csv_path=CSV_FILE_PATH1)
+# extract_product_data(collection=get_mongo_client(), target_events=collections, fields_to_extract=["current_url"], id_fallbacks=product_id_fallback, folder_name="output_current_urls", file_name="product_info")
 
-#extract_product_data(collection=get_mongo_client(), target_events=[ "product_view_all_recommend_clicked" ], fields_to_extract=["referrer_url"], id_fallbacks={"product_id": ["$viewing_product_id", "$product_id"]}, output_csv_path=CSV_FILE_PATH2)
+# extract_product_data(collection=get_mongo_client(), target_events=[ "product_view_all_recommend_clicked" ], fields_to_extract=["referrer_url"], id_fallbacks={"product_id": ["$viewing_product_id", "$product_id"]}, folder_name="output", file_name="product_info_referrer_url")

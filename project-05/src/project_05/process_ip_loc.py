@@ -1,11 +1,9 @@
-from config import get_mongo_client
+from con import get_mongo_client
 from utils import save_to_csv
-
+import os
 import IP2Location
 
-#.BIN database file path
-# IP2LOCATION_DB_PATH = "/home/hdh99/p5_data/IP-COUNTRY-REGION-CITY.BIN"
-# CSV_FILE_PATH = "/home/hdh99/project-05_HaDucHuyK24/outcome_data/ip_locations.csv"
+
 
 def process_ip_loc(bin_path, output_csv_path):
     # Verify that the IP2Location database file exists

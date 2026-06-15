@@ -1,20 +1,12 @@
-from pymongo import MongoClient
-
 MONGO_URI = "mongodb://localhost:27017/"
 DB_NAME = "glamira"
 SOURCE_COLLECTION = "summary19"
-# TARGET_COLLECTION = "ip_locations"
+MONGO_UNAME = ""
+MONGO_PWD = ""
 
-
-def get_mongo_client():
-    try:
-        client = MongoClient(MONGO_URI)
-        db = client[DB_NAME]
-        source_col = db[SOURCE_COLLECTION]
-        print(f"Successfully connected to {db}.{source_col}.")
-    except Exception as e:
-        print(f"Error connecting to MongoDB: {e}")
-        return
-    return source_col
-
-# get_mongo_client()
+IP2LOCATION_DB_PATH = "/home/hdh99/p5_data/IP-COUNTRY-REGION-CITY.BIN"
+IP_CSV_FILE_PATH = "/home/hdh99/project-05_HaDucHuyK24/outcome_data/ip_locations.csv"
+FOLDER_CURRENT_URLS = "/home/hdh99/project-05_HaDucHuyK24/outcome_data/output_current_urls"
+FOLDER_REFERRER_URLS = "/home/hdh99/project-05_HaDucHuyK24/outcome_data/output_referrer_urls"
+CRAWL_SAVE_PATH = "/home/hdh99/project-05_HaDucHuyK24/outcome_data/crawl_product_info.csv"
+FAIL_CRAWL_SAVE_PATH = "/home/hdh99/project-05_HaDucHuyK24/outcome_data/failed_urls.csv"
